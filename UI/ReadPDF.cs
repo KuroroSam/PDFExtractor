@@ -24,6 +24,8 @@ namespace UI
             {
                 var p = reader.GetPageN(page);
                 var pageSize = reader.GetPageSize(page);
+                var factor = 1700 / pageSize.Height;
+               
                 var annotationList = p.GetAsArray(iTextSharp.text.pdf.PdfName.ANNOTS);
 
                 foreach (PdfObject annot in annotationList.ArrayList)
@@ -39,7 +41,10 @@ namespace UI
 
                         var offsetX = 20;
 
-                        var location = new LocationModel { X = Convert.ToInt32(Double.Parse(left.ToString())) + offsetX, Y = Convert.ToInt32(pageSize.Height - float.Parse(top.ToString())), Title = content.ToString() };
+                        var location = new LocationModel {
+                            X = Convert.ToInt32(Double.Parse(left.ToString()) * factor) + offsetX,
+                            Y = Convert.ToInt32((pageSize.Height - float.Parse(top.ToString())) * factor),
+                            Title = content.ToString() };
                         locationList.Add(location);
                     }
                 }
