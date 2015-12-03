@@ -24,16 +24,32 @@ namespace UI
             {
                 var p = reader.GetPageN(page);
                 var pageSize = reader.GetPageSizeWithRotation(page);
+                 var rotation = pageSize.Rotation;
 
                 float factor;
                 if (pageSize.Height > pageSize.Width) 
                 {
                     //Portait
-                    factor = 2000 / pageSize.Width; 
+                    if (rotation == 90)
+                    {
+                        factor = 1700 / pageSize.Width;
+                    }
+                    else
+                    {
+                        factor = 2000 / pageSize.Width;
+                    }
                 }
                 else{
                     //landscape
-                    factor = 1700 / pageSize.Height;
+                    if (rotation == 90)
+                    {
+                        factor = 2000 / pageSize.Height;
+                    }
+                    else
+                    {
+                        factor = 1700 / pageSize.Height;
+                    }
+                   
                 }
                
                 var annotationList = p.GetAsArray(iTextSharp.text.pdf.PdfName.ANNOTS);
@@ -46,14 +62,14 @@ namespace UI
                     {
                         var content = annotationDict.GetAsString(PdfName.CONTENTS);
                         var rect = annotationDict.GetAsArray(PdfName.RECT);
-                        var roatation = pageSize.Rotation;
+                       
                         var left = Convert.ToDouble(rect[2].ToString());
-                        var top = Convert.ToDouble(pageSize.Height - float.Parse(rect[3].ToString()));
+                        var top = Convert.ToDouble(pageSize.Height - float.Parse(rect[3].ToString())); // Convert Bottom to Top Coordinate System
 
-                        if (roatation == 90)
+                        if (rotation == 90)
                         {
-                            left = pageSize.Height > pageSize.Width ? Convert.ToDouble(rect[3].ToString()) :  float.Parse(rect[1].ToString());
-                            top = pageSize.Height > pageSize.Width ? float.Parse(rect[2].ToString()) : Convert.ToDouble(float.Parse(rect[0].ToString()));
+                            left = pageSize.Height > pageSize.Width ? Convert.ToDouble(rect[3].ToString()) : pageSize.Height - float.Parse(rect[2].ToString());
+                            top = pageSize.Height > pageSize.Width ? float.Parse(rect[2].ToString()) : float.Parse(rect[3].ToString());
                         }
                         
 
