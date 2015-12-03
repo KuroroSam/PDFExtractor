@@ -25,7 +25,7 @@ namespace UI
                 var p = reader.GetPageN(page);
                 var pageSize = reader.GetPageSize(page);
                 var factor = 1700 / pageSize.Height;
-               
+
                 var annotationList = p.GetAsArray(iTextSharp.text.pdf.PdfName.ANNOTS);
 
                 foreach (PdfObject annot in annotationList.ArrayList)
