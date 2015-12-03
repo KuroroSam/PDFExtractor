@@ -23,9 +23,19 @@ namespace UI
             for (int page = 1; page <= reader.NumberOfPages; page++)
             {
                 var p = reader.GetPageN(page);
-                var pageSize = reader.GetPageSize(page);
-                var factor = 1700 / pageSize.Height;
+                var pageSize = reader.GetPageSizeWithRotation(page);
 
+                float factor;
+                if (pageSize.Height > pageSize.Width) 
+                {
+                    //Portait
+                    factor = 2000 / pageSize.Width; 
+                }
+                else{
+                    //landscape
+                    factor = 1700 / pageSize.Height;
+                }
+               
                 var annotationList = p.GetAsArray(iTextSharp.text.pdf.PdfName.ANNOTS);
 
                 foreach (PdfObject annot in annotationList.ArrayList)
@@ -36,14 +46,22 @@ namespace UI
                     {
                         var content = annotationDict.GetAsString(PdfName.CONTENTS);
                         var rect = annotationDict.GetAsArray(PdfName.RECT);
-                        var left = rect[2];
-                        var top = rect[3];
+                        var roatation = pageSize.Rotation;
+                        var left = Convert.ToDouble(rect[2].ToString());
+                        var top = Convert.ToDouble(pageSize.Height - float.Parse(rect[3].ToString()));
+
+                        if (roatation == 90)
+                        {
+                            left = pageSize.Height > pageSize.Width ? Convert.ToDouble(rect[3].ToString()) :  float.Parse(rect[1].ToString());
+                            top = pageSize.Height > pageSize.Width ? float.Parse(rect[2].ToString()) : Convert.ToDouble(float.Parse(rect[0].ToString()));
+                        }
+                        
 
                         var offsetX = 20;
 
                         var location = new LocationModel {
                             X = Convert.ToInt32(Double.Parse(left.ToString()) * factor) + offsetX,
-                            Y = Convert.ToInt32((pageSize.Height - float.Parse(top.ToString())) * factor),
+                            Y = Convert.ToInt32(Double.Parse(top.ToString()) * factor),
                             Title = content.ToString() };
                         locationList.Add(location);
                     }
