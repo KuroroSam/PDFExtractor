@@ -43,11 +43,11 @@ namespace UI
                     //landscape
                     if (rotation == 90)
                     {
-                        factor = 2000 / pageSize.Height;
+                        factor = 1700 / pageSize.Height;
                     }
                     else
                     {
-                        factor = 1700 / pageSize.Height;
+                        factor = 2000 / pageSize.Height;
                     }
                    
                 }
@@ -66,13 +66,19 @@ namespace UI
                         var left = Convert.ToDouble(rect[2].ToString());
                         var top = Convert.ToDouble(pageSize.Height - float.Parse(rect[3].ToString())); // Convert Bottom to Top Coordinate System
 
-                        if (rotation == 90)
-                        {
-                            left = pageSize.Height > pageSize.Width ? Convert.ToDouble(rect[3].ToString()) : pageSize.Height - float.Parse(rect[2].ToString());
-                            top = pageSize.Height > pageSize.Width ? float.Parse(rect[2].ToString()) : float.Parse(rect[3].ToString());
-                        }
+                        //Comment this line if the coordinate is weird
+                        /*
+                       if (rotation == 90)
+                       {
+                           left = pageSize.Height > pageSize.Width ? Convert.ToDouble(rect[3].ToString()) : pageSize.Height - float.Parse(rect[2].ToString());
+                           top = pageSize.Height > pageSize.Width ? float.Parse(rect[2].ToString()) : float.Parse(rect[3].ToString());
+                       }
+                         */
                         
-
+                        //Comment this line if the coordinate is weird
+                        left = Convert.ToDouble(rect[3].ToString());
+                        top = Convert.ToDouble(rect[0].ToString());
+                      
                         var offsetX = 20;
 
                         var location = new LocationModel {
