@@ -1,4 +1,5 @@
 ﻿using iTextSharp.text.pdf;
+using iTextSharp.text.pdf.parser;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -30,29 +31,20 @@ namespace UI
                 if (pageSize.Height > pageSize.Width) 
                 {
                     //Portait
-                    if (rotation == 90)
-                    {
-                        factor = 1700 / pageSize.Width;
-                    }
-                    else
-                    {
-                        factor = 2000 / pageSize.Width;
-                    }
+                    factor = 2000 / pageSize.Width;
                 }
                 else{
                     //landscape
-                    if (rotation == 90)
-                    {
-                        factor = 1700 / pageSize.Height;
-                    }
-                    else
-                    {
-                        factor = 2000 / pageSize.Height;
-                    }
-                   
+                    factor = 1700 / pageSize.Height;
                 }
                
                 var annotationList = p.GetAsArray(iTextSharp.text.pdf.PdfName.ANNOTS);
+
+                ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
+                string currentText = PdfTextExtractor.GetTextFromPage(reader, page, strategy);
+
+                currentText = Encoding.UTF8.GetString(ASCIIEncoding.Convert(Encoding.Default, Encoding.UTF8, Encoding.Default.GetBytes(currentText)));
+                
 
                 foreach (PdfObject annot in annotationList.ArrayList)
                 {
@@ -61,10 +53,11 @@ namespace UI
                     if (subtype == PdfName.FREETEXT)
                     {
                         var content = annotationDict.GetAsString(PdfName.CONTENTS);
-                        var rect = annotationDict.GetAsArray(PdfName.RECT);
-                       
-                        var left = Convert.ToDouble(rect[2].ToString());
-                        var top = Convert.ToDouble(pageSize.Height - float.Parse(rect[3].ToString())); // Convert Bottom to Top Coordinate System
+                        var tmp = annotationDict.GetAsArray(PdfName.RECT);
+                        var rect = new PdfRectangle(tmp.GetAsNumber(0).FloatValue, tmp.GetAsNumber(1).FloatValue, tmp.GetAsNumber(2).FloatValue, tmp.GetAsNumber(3).FloatValue);
+
+                        var left = Convert.ToDouble(rect.Right);
+                        var top = Convert.ToDouble(pageSize.Height - rect.Top); // Convert Bottom to Top Coordinate System
 
                         //Comment this line if the coordinate is weird
                         /*
@@ -76,14 +69,15 @@ namespace UI
                          */
                         
                         //Comment this line if the coordinate is weird
-                        left = Convert.ToDouble(rect[3].ToString());
-                        top = Convert.ToDouble(rect[0].ToString());
+                        //left = Convert.ToDouble(rect[3].ToString());
+                        //top = Convert.ToDouble(rect[0].ToString());
                       
-                        var offsetX = 20;
+                        var offsetX = 30;
+                        var offsetY = 20;
 
                         var location = new LocationModel {
                             X = Convert.ToInt32(Double.Parse(left.ToString()) * factor) + offsetX,
-                            Y = Convert.ToInt32(Double.Parse(top.ToString()) * factor),
+                            Y = Convert.ToInt32(Double.Parse(top.ToString()) * factor) + offsetY,
                             Title = content.ToString() };
                         locationList.Add(location);
                     }
